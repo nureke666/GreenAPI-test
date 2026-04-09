@@ -4,13 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GREEN-API Test Task</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .container {
+            display: flex;
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            gap: 30px;
+        }
+        .left-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .right-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        input, textarea, button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: #e0e0e0;
+        }
+        .right-panel textarea {
+            flex-grow: 1;
+            resize: none;
+            background-color: #fafafa;
+            font-family: monospace;
+            min-height: 500px;
+        }
+        h3 {
+            margin-top: 0;
+            font-weight: normal;
+        }
+    </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- Сайдбар -->
+    <!-- Левая панель с полями ввода и кнопками -->
     <div class="left-panel">
+        
         <!-- Авторизация -->
         <div class="form-group">
             <input type="text" id="idInstance" placeholder="idInstance">
@@ -36,6 +93,7 @@
             <input type="text" id="fileUrl" placeholder="https://my.site.com/img/horse.png">
             <button onclick="sendFileByUrl()">sendFileByUrl</button>
         </div>
+
     </div>
 
     <!-- Правая панель с ответом -->
@@ -45,6 +103,128 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+    // Базовый URL API (согласно документации GREEN-API)
+    const apiUrl = "https://api.green-api.com";
+
+    // Вспомогательная функция для вывода ответа на экран
+    function displayResponse(data) {
+        const responseArea = document.getElementById('responseArea');
+        responseArea.value = JSON.stringify(data, null, 4);
+    }
+
+    // Вспомогательная функция для получения учетных данных
+    function getCredentials() {
+        const idInstance = document.getElementById('idInstance').value.trim();
+        const apiTokenInstance = document.getElementById('ApiTokenInstance').value.trim();
+        if (!idInstance || !apiTokenInstance) {
+            alert('Пожалуйста, введите idInstance и ApiTokenInstance');
+            throw new Error('Missing credentials');
+        }
+        return { idInstance, apiTokenInstance };
+    }
+
+    // Вспомогательная функция для форматирования номера телефона
+    function getChatId(phone) {
+        phone = phone.trim();
+        if (!phone.endsWith('@c.us')) {
+            phone += '@c.us';
+        }
+        return phone;
+    }
+
+    // 1. Метод getSettings
+    async function getSettings() {
+        try {
+            const { idInstance, apiTokenInstance } = getCredentials();
+            const url = `${apiUrl}/waInstance${idInstance}/getSettings/${apiTokenInstance}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            displayResponse(data);
+        } catch (error) {
+            displayResponse({ error: error.message });
+        }
+    }
+
+    // 2. Метод getStateInstance
+    async function getStateInstance() {
+        try {
+            const { idInstance, apiTokenInstance } = getCredentials();
+            const url = `${apiUrl}/waInstance${idInstance}/getStateInstance/${apiTokenInstance}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+            displayResponse(data);
+        } catch (error) {
+            displayResponse({ error: error.message });
+        }
+    }
+
+    // 3. Метод sendMessage
+    async function sendMessage() {
+        try {
+            const { idInstance, apiTokenInstance } = getCredentials();
+            const phone = document.getElementById('phoneMessage').value;
+            const message = document.getElementById('textMessage').value;
+
+            if (!phone || !message) {
+                alert('Введите номер телефона и сообщение');
+                return;
+            }
+
+            const url = `${apiUrl}/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
+            const payload = {
+                chatId: getChatId(phone),
+                message: message
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            displayResponse(data);
+        } catch (error) {
+            displayResponse({ error: error.message });
+        }
+    }
+
+    // 4. Метод sendFileByUrl
+    async function sendFileByUrl() {
+        try {
+            const { idInstance, apiTokenInstance } = getCredentials();
+            const phone = document.getElementById('phoneFile').value;
+            const fileUrl = document.getElementById('fileUrl').value;
+
+            if (!phone || !fileUrl) {
+                alert('Введите номер телефона и ссылку на файл');
+                return;
+            }
+
+            // Извлекаем имя файла из URL
+            const fileName = fileUrl.substring(fileUrl.lastIndexOf('/') + 1) || 'file';
+
+            const url = `${apiUrl}/waInstance${idInstance}/sendFileByUrl/${apiTokenInstance}`;
+            const payload = {
+                chatId: getChatId(phone),
+                urlFile: fileUrl,
+                fileName: fileName
+            };
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await response.json();
+            displayResponse(data);
+        } catch (error) {
+            displayResponse({ error: error.message });
+        }
+    }
+</script>
+
 </body>
 </html>
