@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GREEN-API Test Task</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Сайдбар -->
+    <div class="left-panel">
+        <!-- Авторизация -->
+        <div class="form-group">
+            <input type="text" id="idInstance" placeholder="idInstance">
+            <input type="text" id="ApiTokenInstance" placeholder="ApiTokenInstance">
+        </div>
+
+        <!-- Методы без параметров -->
+        <div class="form-group">
+            <button onclick="getSettings()">getSettings</button>
+            <button onclick="getStateInstance()">getStateInstance</button>
+        </div>
+
+        <!-- Метод sendMessage -->
+        <div class="form-group">
+            <input type="text" id="phoneMessage" placeholder="77771234567">
+            <textarea id="textMessage" rows="3" placeholder="Hello World!"></textarea>
+            <button onclick="sendMessage()">sendMessage</button>
+        </div>
+
+        <!-- Метод sendFileByUrl -->
+        <div class="form-group">
+            <input type="text" id="phoneFile" placeholder="77771234567">
+            <input type="text" id="fileUrl" placeholder="https://my.site.com/img/horse.png">
+            <button onclick="sendFileByUrl()">sendFileByUrl</button>
+        </div>
+    </div>
+
+    <!-- Правая панель с ответом -->
+    <div class="right-panel">
+        <h3>Ответ:</h3>
+        <textarea id="responseArea" readonly></textarea>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
